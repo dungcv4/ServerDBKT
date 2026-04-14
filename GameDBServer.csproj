@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <StartupObject>GameDBServer.Program</StartupObject>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>GameDBServer</RootNamespace>
+    <AssemblyName>GameDBServer</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>0618;0168;0219;0414;0162;CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8625;CS0579;CS0108;CS0114</NoWarn>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <DefineConstants>TRACE;NET8_MIGRATION</DefineConstants>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="protobuf-net" Version="3.2.45" />
+    <PackageReference Include="MySqlConnector" Version="2.3.7" />
+    <PackageReference Include="System.IO.Compression" Version="4.3.0" />
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Xml" Version="9.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0" />
+    <PackageReference Include="NetCoreServer" Version="8.0.1" />
+  </ItemGroup>
+
+  <!-- Exclude Properties/AssemblyInfo.cs and backup files -->
+  <ItemGroup>
+    <Compile Remove="Properties/**" />
+    <Compile Remove="**/*.bak" />
+  </ItemGroup>
+
+  <!-- Exclude Tmsk.Contract files that conflict with GameDBServer's own copies -->
+  <ItemGroup>
+    <!-- GameDBServer đã có LogManager.cs, RC4Helper.cs, SHA1Helper.cs, etc. riêng -->
+    <Compile Remove="Tmsk.Contract/Tools/LogManager.cs" />
+    <Compile Remove="Tmsk.Contract/Tools/RC4Helper.cs" />
+    <Compile Remove="Tmsk.Contract/Tools/SHA1Helper.cs" />
+    <Compile Remove="Tmsk.Contract/Tools/StringEncrypt.cs" />
+    <Compile Remove="Tmsk.Contract/Tools/AesHelper.cs" />
+    <Compile Remove="Tmsk.Contract/Tools/CRC32.cs" />
+    <Compile Remove="Tmsk.Contract/Tools/DataHelper.cs" />
+    <!-- MiniDump dùng kernel32.dll - Windows only -->
+    <Compile Remove="Tmsk.Contract/Tools/MiniDump.cs" />
+    <!-- GameDBServer có Core/TimeUtil.cs riêng -->
+    <Compile Remove="Tmsk.Contract/Tools/TimeUtil.cs" />
+    <!-- Tmsk.Contract LogManager là static class, GameDBServer LogManager là normal class -->
+    <Compile Remove="Tmsk.Contract/Tools/LogManager.cs" />
+    <!-- MmTimer đã có trong Tmsk.Contract nhưng cần exclude nếu xung đột -->
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,19 @@
+# .NET build outputs
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# Logs
+*.log
+log/
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Crash dumps
+mono_crash.*.json
+*.dmp
