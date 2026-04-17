@@ -3225,10 +3225,31 @@ namespace GameDBServer.DB
 
         public static bool IsBlackUserID(DBManager dbMgr, string userid)
         {
-            using (MyDbConnection3 conn = new MyDbConnection3())
+            // Fail-open on SQL errors: if the blacklist check cannot be
+            // performed (e.g. stale MySQL connection from AWS RDS idle
+            // timeout — "Connection reset by peer"), do NOT block the user.
+            // Prior behavior let the exception propagate, which killed the
+            // entire CMD_INIT_GAME path and booted the client out of the
+            // login flow. For a blacklist check, failing open is strictly
+            // safer than hard-failing the whole login — an admin can always
+            // re-ban via a separate kick mechanism.
+            try
             {
-                string cmdText = string.Format("SELECT count(*) from t_blackuserid where userid='{0}' limit 1;", userid);
-                return conn.GetSingleInt(cmdText) > 0;
+                using (MyDbConnection3 conn = new MyDbConnection3())
+                {
+                    string cmdText = string.Format("SELECT count(*) from t_blackuserid where userid='{0}' limit 1;", userid);
+                    int n = conn.GetSingleInt(cmdText);
+                    // GetSingleInt now returns -1 on failure (see MyDbConnection3.cs).
+                    if (n < 0) return false;
+                    return n > 0;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                LogManager.WriteLog(LogTypes.Error,
+                    string.Format("IsBlackUserID failed (failing open, userid={0}): {1}",
+                        userid, ex.Message));
+                return false;
             }
         }
 

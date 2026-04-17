@@ -195,12 +195,18 @@ namespace GameDBServer.DB
         public int GetSingleInt(string sql, int commandTimeout = 0, params MySQLParameter[] cmdParms)
         {
             object obj = GetSingle(sql, commandTimeout, cmdParms);
+            // GetSingle swallows exceptions and returns null on failure. Prior
+            // code called obj.ToString() unguarded → NullReferenceException,
+            // which propagated up to CMD_INIT_GAME processing and made the
+            // GameServer close the client socket. Fail-safe: -1 on null.
+            if (obj == null) return -1;
             return Convert.ToInt32(obj.ToString());
         }
 
         public long GetSingleLong(string sql, int commandTimeout = 0, params MySQLParameter[] cmdParms)
         {
             object obj = GetSingle(sql, commandTimeout, cmdParms);
+            if (obj == null) return -1;
             return Convert.ToInt64(obj.ToString());
         }
 
